@@ -2,10 +2,7 @@ import java.util.*;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 
-
 public class Main {
-    //calculation main program
-
     //handler returns true if the element exists in one of the two arrays
     static Boolean presentInArrayList(List<String> numericalArrList,
                                       List<String> romanNumeralsArrList,
@@ -75,6 +72,7 @@ public class Main {
         return romanResult.toString();
     }
 
+    //calculation main program
     public static String calc(String input) {
         String[] romanNumeralsArr = {"I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"};
         List<String> romanNumeralsArrList = Arrays.asList(romanNumeralsArr);
