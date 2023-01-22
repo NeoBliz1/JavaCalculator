@@ -17,7 +17,7 @@ public class Main {
     }
 
     static List<String> convertRomanToArabicNumbers(List<String> numericalArrList, List<String> romanNumeralsArrList) {
-        List<String> convertedNumeralsArrList = new ArrayList<String>();
+        List<String> convertedNumeralsArrList = new ArrayList<>();
         for (String s : numericalArrList) {
             for (int u = 0; u < romanNumeralsArrList.size(); u++) {
                 if (Objects.equals(romanNumeralsArrList.get(u), s)) {
@@ -41,39 +41,59 @@ public class Main {
     }
 
     static String convertArabicToRomanNumber(String result) {
-//        enum RomNumDict = {
-//            int i = 1;: "I",
-//                5: "V",
-//                10: "X",
-//                50: "L",
-//                100: "C",
-//                500: "D",
-//                1000: "M",
-//                2000: "MM",
-//                4000: "MMMM"
-//		};
-        return result;
+        int numberResult = Integer.parseInt(result);
+        //hasMap of roman numbers
+        SortedMap<Integer, String> romNumMap = new TreeMap<>(java.util.Collections.reverseOrder());
+
+        romNumMap.put(1, "I");
+        romNumMap.put(4, "IV");
+        romNumMap.put(5, "V");
+        romNumMap.put(9, "IX");
+        romNumMap.put(10, "X");
+        romNumMap.put(40, "XL");
+        romNumMap.put(50, "L");
+        romNumMap.put(90, "XC");
+        romNumMap.put(100, "C");
+
+        StringBuilder romanResult = new StringBuilder();
+        //iterate across the map in natural order of the keys
+        while (numberResult > 0) {
+            boolean cycleInProgress = true;
+            for (int key : romNumMap.keySet()) {
+                if (key == numberResult && cycleInProgress) {
+                    romanResult.append(romNumMap.get(key));
+                    numberResult = 0;
+                } else if (key < numberResult && cycleInProgress) {
+                    romanResult.append(romNumMap.get(key));
+                    numberResult = numberResult - key;
+                    cycleInProgress = false;
+                }
+//                System.out.println(romanResult + " " + numberResult);
+            }
+        }
+
+        return romanResult.toString();
     }
 
     public static String calc(String input) {
         String[] romanNumeralsArr = {"I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"};
         List<String> romanNumeralsArrList = Arrays.asList(romanNumeralsArr);
         //create arabicNumeralsArrList based on romanNumeralsArr
-        List<String> arabicNumeralsArrList = new ArrayList<String>();
+        List<String> arabicNumeralsArrList = new ArrayList<>();
         for (int i = 0; i < romanNumeralsArr.length; i++) {
             arabicNumeralsArrList.add(Integer.toString(i + 1));
         }
         //System.out.println(arabicNumeralsArrList);
-        String operatorsStr = "";
+        StringBuilder operatorsStr = new StringBuilder();
         //create operators matcher
         Matcher operatorsMatcher = Pattern.compile("(?!^-)[+*/\\-](\\s?-)?").matcher(input);
         //get operators form input
         while (operatorsMatcher.find()) {
-            operatorsStr = operatorsStr + operatorsMatcher.group(0);
+            operatorsStr.append(operatorsMatcher.group(0));
         }
 //        System.out.println(operatorsStr);
         // Creating a new ArrayList
-        List<String> numericalArrList = new ArrayList<String>();
+        List<String> numericalArrList = new ArrayList<>();
         //create numbers matcher
         Matcher numbersMatcher = Pattern.compile("[A-Za-z0-9]+").matcher(input);
         //get numbers form input
@@ -93,13 +113,22 @@ public class Main {
         else if (new HashSet<>(arabicNumeralsArrList).containsAll(numericalArrList)) {
             int firstNumber = Integer.parseInt(numericalArrList.get(0));
             int secondNumber = Integer.parseInt(numericalArrList.get(1));
-            result = calculateResult(operatorsStr, firstNumber, secondNumber);
+            result = calculateResult(operatorsStr.toString(), firstNumber, secondNumber);
         } //if the string contains roman numbers
         else if (new HashSet<>(romanNumeralsArrList).containsAll(numericalArrList)) {
             List<String> convertedRomanToArabicArrList = convertRomanToArabicNumbers(numericalArrList, romanNumeralsArrList);
             int firstNumber = Integer.parseInt(convertedRomanToArabicArrList.get(0));
             int secondNumber = Integer.parseInt(convertedRomanToArabicArrList.get(1));
-            result = convertArabicToRomanNumber(calculateResult(operatorsStr, firstNumber, secondNumber));
+            if (firstNumber < secondNumber && operatorsStr.toString().equals("-")) {
+                throw new java.lang.RuntimeException("Roman numerals do not have negative values");
+            } else {
+                String preResult = calculateResult(operatorsStr.toString(), firstNumber, secondNumber);
+                if (Integer.parseInt(preResult) == 0) {
+                    throw new java.lang.RuntimeException("Roman numbers cannot be zero, the result is:" + result);
+                } else {
+                    result = convertArabicToRomanNumber(preResult);
+                }
+            }
         }
         return result;
     }
